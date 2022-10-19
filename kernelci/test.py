@@ -159,7 +159,9 @@ def get_params(meta, target, plan_config, storage, device_id):
         'kselftests_url': kselftests_url,
     }
 
-    rootfs = plan_config.rootfs
+    distro_rootfs = plan_config.rootfs
+    rootfs = distro_rootfs.get_distribution_rootfs(arch)
+
     if rootfs:
         initrd_url = rootfs.get_url('ramdisk', arch, variant, endian)
         initrd_compression = _get_compression(initrd_url)

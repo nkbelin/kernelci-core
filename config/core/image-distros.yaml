@@ -1,0 +1,65 @@
+distros:
+  buildroot-baseline_ramdisk:
+    distro_map:
+      buildroot-baseline_ramdisk: [{arch: default}]
+
+  debian-cros-ec_ramdisk:
+    distro_map:
+      debian_bullseye-cros-ec_ramdisk: [{arch: default}]
+      debian_sid-cros-ec_ramdisk:      [{arch: riscv},
+                                        {arch: riscv64}]
+  debian-gst-fluster_nfs:
+    distro_map:
+      debian_bullseye-gst-fluster_nfs: [{arch: default}]
+      debian_sid-gst-fluster_nfs:      [{arch: riscv},
+                                        {arch: riscv64}]
+  debian-igt_ramdisk:
+    distro_map:
+      debian_bullseye-igt_ramdisk: [{arch: default}]
+      debian_sid-igt_ramdisk:      [{arch: riscv},
+                                    {arch: riscv64}]
+  debian-kselftest_nfs:
+    distro_map:
+      debian_bullseye-kselftest_nfs: [{arch: default}]
+      debian_sid-kselftest_nfs:      [{arch: riscv},
+                                      {arch: riscv64}]
+  debian-libcamera_nfs:
+    distro_map:
+      debian_bullseye-libcamera_nfs: [{arch: default}]
+      debian_sid-libcamera_nfs:      [{arch: riscv},
+                                      {arch: riscv64}]
+  debian-ltp_nfs:
+    distro_map:
+      debian_bullseye-ltp_nfs: [{arch: default}]
+      debian_sid-ltp_nfs:      [{arch: riscv},
+                                {arch: riscv64}]
+  debian-ltp_ramdisk:
+    distro_map:
+      debian_bullseye-ltp_ramdisk: [{arch: default}]
+      debian_sid-ltp_ramdisk:      [{arch: riscv},
+                                    {arch: riscv64}]
+  debian-rt_ramdisk:
+    distro_map:
+      debian_bullseye-rt_ramdisk: [{arch: default}]
+      debian_sid-rt_ramdisk:      [{arch: riscv},
+                                   {arch: riscv64}]
+
+  debian-v4l2_ramdisk:
+    distro_map:
+      debian_bullseye-v4l2_ramdisk: [{arch: default}]
+      debian_sid-v4l2_ramdisk:      [{arch: riscv},
+                                     {arch: riscv64}]
+  debian_nfs:
+    distro_map:
+      debian_bullseye_nfs: [{arch: default}]
+      debian_sid_nfs:      [{arch: riscv},
+                            {arch: riscv64}]
+  debian_ramdisk:
+    distro_map:
+      debian_bullseye_ramdisk: [{arch: default}]
+      debian_sid_ramdisk:      [{arch: riscv},
+                                {arch: riscv64}]
+
+  cip_nfs:
+    distro_map:
+      cip_nfs: [{arch: default}]

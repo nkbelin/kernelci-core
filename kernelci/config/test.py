@@ -272,6 +272,66 @@ class RootFSType(YAMLObject):
         return arch_name
 
 
+class Distro(YAMLObject):
+    """CPU architecture/distribution version mapping."""
+
+    def __init__(self, name, distro_dict=None):
+        """Distro indicates which distribution version to use.
+
+        *name* is the rootfs name without the actual distribution version
+         e.g. 'buildroot-baseline_ramdisk' or 'debian-kselftest_nfs'
+
+        *distro_dict* is a dictionary to map CPU architecture names following the
+                    kernel convention with rootfs and ditribution version  names.
+                    Value are the names used by the root file system type (distro),
+                    and key are lists of dictionaries with kernel architecture
+                    names.
+        """
+        self._name = name
+        self._distro_dict = distro_dict or dict()
+
+    @classmethod
+    def from_yaml(cls, name, fs_type, file_systems):
+        kw = {
+            'name': name,
+        }
+
+        distro_map = fs_type.get('distro_map')
+        if distro_map:
+            distro_dict = {}
+            for distro_name, distro_dicts in distro_map.items():
+                for d in distro_dicts:
+                    key = tuple((k, v) for (k, v) in d.items())
+                    if distro_name in file_systems:
+                        distro_dict[key] = file_systems[distro_name]
+                    else:
+                        distro_dict[key] = None
+            kw['distro_dict'] = distro_dict
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def distro_dict(self):
+        return self._distro_dict
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({'url', 'distro_dict'})
+        return attrs
+
+    def get_distribution_rootfs(self, arch):
+        arch_key = ('arch', arch)
+        if (arch_key,) in self._distro_dict:
+            distribution_rootfs = (self._distro_dict.get((arch_key,)))
+        else:
+            arch_key = ('arch', 'default')
+            distribution_rootfs = (self._distro_dict.get((arch_key,)))
+        return distribution_rootfs
+
+
 class RootFS(YAMLObject):
     """Root file system model."""
 
@@ -391,7 +451,8 @@ class TestPlan(YAMLObject):
         *name* is the overall arbitrary test plan name, used when looking for
                job template files.
 
-        *rootfs* is a RootFS object to be used to run this test plan.
+        *rootfs* is a Distro object containing several RootFS objects. Depending
+                 on the architure, on will be used to run this test plan.
 
         *image* is the name of a runtime image to use for the test.
 
@@ -422,14 +483,15 @@ class TestPlan(YAMLObject):
             self._pattern = pattern
 
     @classmethod
-    def from_yaml(cls, name, test_plan, file_systems, default_filters=None):
+    def from_yaml(cls, name, test_plan, distros, default_filters=None):
         rootfs_name = test_plan.get('rootfs')
         kw = {
             'name': name,
-            'rootfs': file_systems[rootfs_name] if rootfs_name else None,
+            'rootfs': distros[rootfs_name] if rootfs_name else None,
             'base_name': test_plan.get('base_name'),
             'filters': FilterFactory.from_data(test_plan, default_filters),
         }
+
         kw.update(cls._kw_from_yaml(test_plan, [
             'name', 'category', 'image', 'pattern', 'params']))
         return cls(**kw)
@@ -477,8 +539,8 @@ class TestPlan(YAMLObject):
         return self._pattern.format(
             category=self._category,
             method=boot_method,
-            protocol=self.rootfs.boot_protocol if self.rootfs else None,
-            rootfs=self.rootfs.root_type if self.rootfs else None,
+            protocol=self.rootfs.get_distribution_rootfs('default').boot_protocol if self.rootfs.get_distribution_rootfs('default') else None,
+            rootfs=self.rootfs.get_distribution_rootfs('default').root_type if self.rootfs.get_distribution_rootfs('default') else None,
             plan=self.name)
 
     def match(self, config):
@@ -539,6 +601,7 @@ class TestConfig(YAMLObject):
 
 
 def from_yaml(data, filters):
+
     fs_types = {
         name: RootFSType.from_yaml(name, fs_type)
         for name, fs_type in data.get('file_system_types', {}).items()
@@ -549,9 +612,14 @@ def from_yaml(data, filters):
         for name, rootfs in data.get('file_systems', {}).items()
     }
 
+    distros = {
+        name: Distro.from_yaml(name, distro, file_systems)
+        for name, distro in data.get('distros', {}).items()
+    }
+
     plan_filters = filters.get('test_plans')
     test_plans = {
-        name: TestPlan.from_yaml(name, test_plan, file_systems, plan_filters)
+        name: TestPlan.from_yaml(name, test_plan, distros, plan_filters)
         for name, test_plan in data.get('test_plans', {}).items()
     }
 
