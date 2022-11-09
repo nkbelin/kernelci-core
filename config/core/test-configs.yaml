@@ -386,6 +386,17 @@ test_plans:
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
+  ltp_qemu: &ltp_qemu
+    base_name: ltp
+    rootfs: debian_bullseye-ltp_ramdisk
+    pattern: 'ltp/{category}-{method}-{rootfs}-ltp-template.jinja2'
+    filters:
+      - combination: *arch_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
+      - passlist: *qemu_labs_filter
+    params:
+      <<: *ltp-params
+
   ltp-crypto:
     <<: *ltp
     params:
@@ -396,8 +407,28 @@ test_plans:
           defconfig:
             - '+crypto'
 
+  ltp-crypto_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-crypto
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "crypto"
+    filters:
+      - combination: *arch_defconfig_filter
+      - passlist: *qemu_labs_filter
+      - passlist:
+          defconfig:
+            - '+crypto'
+
   ltp-fcntl-locktests:
     <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fcntl-locktests"
+
+  ltp-fcntl-locktests_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-fcntl-locktests
     params:
       <<: *ltp-params
       tst_cmdfiles: "fcntl-locktests"
@@ -411,8 +442,29 @@ test_plans:
       - passlist:
           defconfig:
             - '+ima'
+
+  ltp-ima_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-ima
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ima"
+    filters:
+      - combination: *arch_defconfig_filter
+      - passlist: *qemu_labs_filter
+      - passlist:
+          defconfig:
+            - '+ima'
+
   ltp-ipc:
     <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ipc"
+
+  ltp-ipc_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-ipc
     params:
       <<: *ltp-params
       tst_cmdfiles: "ipc"
@@ -424,8 +476,25 @@ test_plans:
       tst_cmdfiles: "mm"
       job_timeout: '30'
 
+  ltp-mm_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-mm
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "mm"
+      job_timeout: '30'
+
   ltp-pty:
     <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "pty"
+      job_timeout: '25'
+      priority: 0
+
+  ltp-pty_qemu:
+    <<: *ltp_qemu
+    base_name: ltp-pty
     params:
       <<: *ltp-params
       tst_cmdfiles: "pty"
@@ -442,19 +511,14 @@ test_plans:
       priority: 0
 
   ltp-timers_qemu:
-    <<: *ltp
+    <<: *ltp_qemu
     base_name: ltp-timers
-    rootfs: debian_bullseye-ltp_ramdisk
     pattern: 'ltp/{category}-{method}-{rootfs}-ltp-open-posix-template.jinja2'
     params:
       <<: *ltp-params
       grp_test: "TMR"
       job_timeout: '30'
       priority: 0
-    filters:
-      - combination: *arch_defconfig_filter
-      - blocklist: *kselftest_defconfig_filter
-      - passlist: *qemu_labs_filter
 
   preempt-rt:
     rootfs: debian_bullseye-rt_ramdisk
