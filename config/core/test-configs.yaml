@@ -2290,6 +2290,11 @@ test_configs:
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ipc
+      - ltp-pty
+      - ltp-timers
 
   - device_type: hip07-d05
     test_plans:
