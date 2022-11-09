@@ -2290,6 +2290,13 @@ test_configs:
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
+      - kselftest-cgroup
+      - kselftest-filesystems
+      - kselftest-kcmp
+      - kselftest-membarrier
+      - kselftest-mincore
+      - kselftest-timers
+      - kselftest-futex
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
