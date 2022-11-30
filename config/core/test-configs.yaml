@@ -211,6 +211,8 @@ test_plans:
   kselftest: &kselftest
     rootfs: debian_bullseye-kselftest_nfs
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
+    params: &kselftest-params
+      skip_install: "false"
     filters:
       - passlist: {defconfig: ['kselftest']}
 
@@ -312,6 +314,7 @@ test_plans:
   kselftest-membarrier:
     <<: *kselftest
     params:
+      <<: *kselftest-params
       job_timeout: '10'
       kselftest_collections: "membarrier"
     filters: *kselftest_no_fragment
@@ -368,6 +371,25 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "vm"
+
+  kselftest_qemu: &kselftest_qemu
+    rootfs: debian_bullseye-kselftest_ramdisk
+    pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
+    params: &kselftest_qemu-params
+      skip_install: "true"
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+
+  kselftest-membarrier_qemu:
+    <<: *kselftest_qemu
+    params:
+      <<: *kselftest_qemu-params
+      job_timeout: '10'
+      kselftest_collections: "membarrier"
+    filters:
+      - combination: *arch_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
+      - passlist: *qemu_labs_filter
 
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
